@@ -85,10 +85,8 @@ if __name__ == '__main__':
     try:
         # db = psycopg2.connect(database=DBNAME)
         db = psycopg2.connect('dbname=news')
-        print('1.')
-        # cursor = db.cursor()
-        # print('2.')
-        # main(cursor)
+        cursor = db.cursor()
+        main(cursor)
     except Exception as e:
         print('Database connection error: ', e)
         exit()
