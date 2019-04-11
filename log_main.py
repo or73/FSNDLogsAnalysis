@@ -8,6 +8,10 @@ DBNAME = 'news'
 
 
 def print_table(data):
+    """
+    :param data: table data to print
+    :return: do not return a value, this function prints data
+    """
     print('table')
     for i, record in enumerate(data):
         print('Rank{rank}: '.format(rank=i + 1))
@@ -15,6 +19,11 @@ def print_table(data):
 
 
 def main(cursor):
+    """
+    :param cursor: database cursor
+    :return: do not return a value, executes several queries to 'news' database
+                to answer 3 questions
+    """
 
     # 1. What are the most popular three articles of all time?
     #    Which articles have been accessed the most? Present this
@@ -92,10 +101,8 @@ if __name__ == '__main__':
     try:
         # db = psycopg2.connect(database=DBNAME)
         db = psycopg2.connect('dbname=news')
-        print('1.')
-        # cursor = db.cursor()
-        # print('2.')
-        # main(cursor)
+        cursor = db.cursor()
+        main(cursor)
     except Exception as e:
         print('Database connection error: ', e)
         exit()
@@ -103,4 +110,3 @@ if __name__ == '__main__':
     localtime = time.asctime(time.localtime(time.time()))
     print('\nSTOP - program execution time stamp: ', localtime)
     print('_______________________________\n')
-
