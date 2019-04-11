@@ -10,14 +10,16 @@ DBNAME = 'news'
 def print_table(data):
     print('table')
     for i, record in enumerate(data):
-        print('Rank{rank}: \'{name}\' has had {views} views.'.format(rank=i + 1, name=record[0], views=record[1]))
+        print('Rank{rank}: '.format(rank=i + 1))
+        print(' \'{name}\' has had {views} views.'.format(name=record[0], views=record[1]))
 
 
 def main(cursor):
 
     # 1. What are the most popular three articles of all time?
-    #    Which articles have been accessed the most? Present this information
-    #       as a sorted list with the most popular article at the top.
+    #    Which articles have been accessed the most? Present this
+    #       information as a sorted list with the most popular
+    #       article at the top.
     query1 = 'SELECT articles.title, COUNT(*) AS results' \
              '  FROM articles, log' \
              '  WHERE log.status = \'200 OK\'' \
@@ -25,9 +27,10 @@ def main(cursor):
              '   GROUP BY articles.title' \
              '   ORDER BY results DESC ' \
              '   LIMIT 3;'
-    # 2. Who are the most popular article authors of all time? That is, when you sum up all of the articles
-    #       each author has written, which authors get the most page views? Present this as a sorted list
-    #       with the most popular author at the top.
+    # 2. Who are the most popular article authors of all time? That is,
+    #       when you sum up all of the articles each author has written,
+    #       which authors get the most page views? Present this as a
+    #       sorted list with the most popular author at the top.
     query2 = 'SELECT authors.name, COUNT(*) AS result' \
              '  FROM log, authors, articles' \
              '  WHERE log.status = \'200 OK\'' \
@@ -36,11 +39,15 @@ def main(cursor):
              '  GROUP BY authors.name' \
              '  ORDER BY restuls DESC'
 
-    # 3. On which days did more than 1% of requests lead to errors? The log table includes a column status
-    #       that indicates the HTTP status code that the news site sent to the user's browser.
+    # 3. On which days did more than 1% of requests lead to errors?
+    #       The log table includes a column status that indicates
+    #       the HTTP status code that the news site sent to the user's browser.
     query3 = 'SELECT * ' \
              '  FROM (' \
-             '  SELECT date(time), round(100.0*sum(CASE log.status WHEN \'200 OK\' THEN 0 ELSE 1 end)/count(log.status),4) AS error ' \
+             '  SELECT date(time), round(100.0*sum(CASE log.status ' \
+             '                                      WHEN \'200 OK\' ' \
+             '                                      THEN 0 ' \
+             '                                      ELSE 1 END)/count(log.status),4) AS error ' \
              '      FROM log ' \
              '      GROUP BY date(time) ' \
              '      ORDER BY error DESC) AS subq ' \
@@ -85,8 +92,10 @@ if __name__ == '__main__':
     try:
         # db = psycopg2.connect(database=DBNAME)
         db = psycopg2.connect('dbname=news')
-        cursor = db.cursor()
-        main(cursor)
+        print('1.')
+        # cursor = db.cursor()
+        # print('2.')
+        # main(cursor)
     except Exception as e:
         print('Database connection error: ', e)
         exit()
@@ -94,3 +103,4 @@ if __name__ == '__main__':
     localtime = time.asctime(time.localtime(time.time()))
     print('\nSTOP - program execution time stamp: ', localtime)
     print('_______________________________\n')
+
