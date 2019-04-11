@@ -7,15 +7,31 @@ import psycopg2  # postgres
 DBNAME = 'news'
 
 
-def print_table(data):
+def print_table(query, field1='Rank', field2='Name', field3='Views'):
     """
-    :param data: table data to print
+    :param query: data to print
+    :param field1: Column 1 title
+    :param field2: Column 2 title
+    :param field3: Column 3 title
     :return: do not return a value, this function prints data
     """
-    print('table')
-    for i, record in enumerate(data):
-        print('Rank{rank}: '.format(rank=i + 1))
-        print(' \'{name}\' has had {views} views.'.format(name=record[0], views=record[1]))
+    try:
+        cursor.execute(query)
+        answer = cursor.fetchall()
+        print('\t| %s \t| %s\t\t\t\t      | %s  |' % (field1, field2, field3))
+        print('\t|-------+-------------------------------------+--------|')
+        for i, record in enumerate(answer):
+            rank = str(i + 1)
+            name = str(record[0])
+            views = str(record[1])
+            if len(name) < 35:
+                name += (' ' * (35 - len(name)))
+            if len(views) < 6:
+                views += (' ' * (6 - len(views)))
+            print('\t| %s\t| %s | %s |' % (rank, name, views))
+        print('\n')
+    except Exception as e:
+        print('Error in Answer 1: ', e)
 
 
 def main(cursor):
@@ -46,7 +62,7 @@ def main(cursor):
              '  AND articles.slug = substr(log.path, 10)' \
              '  AND authors.id = articles.author' \
              '  GROUP BY authors.name' \
-             '  ORDER BY restuls DESC'
+             '  ORDER BY result DESC'
 
     # 3. On which days did more than 1% of requests lead to errors?
     #       The log table includes a column status that indicates
@@ -54,40 +70,26 @@ def main(cursor):
     query3 = 'SELECT * ' \
              '  FROM (' \
              '  SELECT date(time), round(100.0*sum(CASE log.status ' \
-             '                                      WHEN \'200 OK\' ' \
-             '                                      THEN 0 ' \
-             '                                      ELSE 1 END)/count(log.status),4) AS error ' \
+             '      WHEN \'200 OK\' ' \
+             '      THEN 0 ' \
+             '      ELSE 1 ' \
+             '      END)/count(log.status),4) AS error ' \
              '      FROM log ' \
              '      GROUP BY date(time) ' \
              '      ORDER BY error DESC) AS subq ' \
              '  WHERE error > 1;'
-    try:
 
-        cursor.execute(query1)
-        answer1 = cursor.fetchall()
-    except Exception as e:
-        print('Error in Answer 1: ', e)
+    print('\n\t\t---------------- QUESTION 1 ----------------')
+    print('\nThe most popular three articles of all time are:\n')
+    print_table(query1)
 
-    try:
-        cursor.execute(query2)
-        answer2 = cursor.fetchall()
-    except Exception as e:
-        print('Error in Answer 2: ', e)
+    print('\n\t\t---------------- QUESTION 2 ----------------')
+    print('\nThe most popular article authors of all time are:\n')
+    print_table(query2)
 
-    try:
-        cursor.execute(query3)
-        answer3 = cursor.fetchall()
-    except Exception as e:
-        print('Error in Answer 3: ', e)
-
-    print('The most popular three articles of all time are:')
-    print_table(answer1)
-
-    print('The most popular article authors of all itme are:')
-    print_table(answer2)
-
-    print('The days with more than 1% of requests lead to errors are:')
-    print_table(answer3)
+    print('\n\t\t---------------- QUESTION 3 ----------------')
+    print('\nThe days with more than 1% of requests lead to errors are:\n')
+    print_table(query3, 'Rank', 'Date', 'Error')
 
     db.close()
 
